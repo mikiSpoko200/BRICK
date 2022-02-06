@@ -1,0 +1,28 @@
+# 25.01.2022:
+
+Po rozwiązaniu problemu z globalną mutowalną Bitmapą program faktycznie działa.
+Aktualnie renderuje przesuwający się gradient. Podczas zmiany rozmiaru okna, można zauważyć pewne artefakty,
+które wynikają albo z tego jak działa używana w bitmap::Bitmap::blit systemowa funkcja Win32::Graphics::Gdi::StretchDIBits
+albo z powodu podwójnego buforowania - nie jestem jeszcze do końca pewny.
+
+UWAGA: wymagana była dodatkowa modyfikacja struktury bitmap::Pixel, oryginalnie była to struktura postaci:
+pub struct Pixel {
+    pub red: u8,
+    pub blue: u8,
+    pub green: u8,
+    pub alfa: u8,
+}
+Windows, z powodów historycznych oczekuje struktury w formacie nie RGBA tylko BGRA (zamiana Blue i Red).
+Nowa struktura odzwierciedla te ułożenie:
+
+pub struct Pixel {
+    pub blue: u8,
+    pub green: u8,
+    pub red: u8,
+    pub alfa: u8,
+}
+
+Na szczęście, dzięki odpowiedniej konstrukcji interfejsu Pixel i zastosowaniu zestawu setterów i getterów 
+(które i tak powinny zostać zinline'owane) nie musimy zmienić niczego poza tym detalem implementacyjnym i cały program działa.
+
+W każdym razie oznacza to, że część platformowa jest skończona i mogę przystąpić do pisania kodu silnika.

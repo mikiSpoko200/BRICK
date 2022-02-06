@@ -1,0 +1,38 @@
+# Mikołaj Depta Opis projektu:
+
+Jako projekt końcowy chciałbym wykonać old-school'owy, prosty silnik do renderowania grafiki 3d.
+Początkowo będzie to aplikacja w wersji desktopowej, a później będzie przeniesiona do przeglądarki za pomocą Web Assembly.
+
+# Platforma Windows:
+
+Wersja desktopowa wykonana będzie pod platformę Windows używając niskopoziomowego win32api. 
+Uzyskanie dostępu do api napisanego w C będzie możliwe za pomocą pakietu "windows".
+
+crates.io: https://crates.io/crates/windows
+MSDN: https://docs.microsoft.com/en-us/windows/dev-environment/rust/rust-for-windows
+
+projekt ten wykorzystuje metadane opisujące różne api systemowe w celu wygenerowania binding'ów dla Rusta.
+Generowany kod ma być idiomatyczny dla danego języka. W przypadku Rusta oznacza to używanie typów generycznych z trait bound'ami,
+możliwość konwersji między typami danych oraz wsparcie dla systemu modułów.
+
+# Funkcjonalność:
+
+Przede wszystkim chciałbym, żeby silnik był napisany w sposób idiomatyczny dla Rusta, tzn. żeby w pełni korzystał z następujących cech Rusta:
+- bezpieczeństwo: statyczne zarządzanie pamięcią oraz silny system typów
+- elastyczność kodu: typy generyczne + cechy (traits)
+- abstrakcje z biblioteki standardowej: iteratory i ich liczne adaptery, std::collections. 
+
+Chciałbym, żeby silnik pozwalał na renderowanie scen 3D. Co wymaga:
+- rysowania linii
+- wypełniania trójkątów
+- cieniowania
+- kamera z możliwością ruchu
+
+W ramach tego projektu nie zamierzam używać akceleracji sprzętowej itp.
+Jest to jednak ograniczenie wynikające z małej ilości czasu do końca semestru, w przyszłości chciałbym rozwijać projekt.
+Aby jednak to umożliwić już od samego początku muszę zadbać o odpowiednią modularność kodu oraz wyabstrahowanie pewnych elementów silnika.
+
+# Co chcę osiągnąć:
+
+Chciałbym, silnik był w stanie wygenerować prostą scenę np: krajobraz wygenerowany za pomocą algorytmu Perlin Noise. 
+
