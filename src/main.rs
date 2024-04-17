@@ -18,7 +18,6 @@ use bitmap::{ Bitmap, Pixel };
 // static mut naming convention: https://github.com/rust-lang/rust/pull/37162
 static mut GLOBAL_BITMAP : Option<Bitmap> = None;
 static mut ITER_COUNT: u8 = 0;
-const WINDOW_STYLE: u32 = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_VISIBLE;
 
 
 extern "system" fn window_procedure(window: HWND, message: u32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
@@ -74,21 +73,20 @@ pub unsafe fn render_wierd_gradient(blue_offset: u8, green_offset: u8) {
 
 
 fn main() -> Result<()> {
+    let window_style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_VISIBLE;
     unsafe {
         let instance = GetModuleHandleA(None);
         assert!(!instance.is_invalid(), "Invalid instance handle.");
 
         let wc = WNDCLASSA {
-        hCursor: LoadCursorW(None, IDC_ARROW),
-        hInstance: instance,
-        lpszClassName: PSTR(b"3DEngine\0".as_ptr() as _),
-        style: CS_HREDRAW | CS_VREDRAW,
-        lpfnWndProc: Some(window_procedure),
-        cbWndExtra: 8,
-        ..Default::default()
+            hCursor: LoadCursorW(None, IDC_ARROW),
+            hInstance: instance,
+            lpszClassName: PSTR(b"3DEngine\0".as_ptr() as _),
+            style: CS_HREDRAW | CS_VREDRAW,
+            lpfnWndProc: Some(window_procedure),
+            cbWndExtra: 8,
+            ..Default::default()
         };
-
-
 
         let atom = RegisterClassA(&wc);
         assert_ne!(atom, 0, "Window class registration failed.");
@@ -101,7 +99,7 @@ fn main() -> Result<()> {
             bottom: 300 + graphics::HEIGHT,
         };
 
-        AdjustWindowRectEx(&mut desired_client_rect_size, WINDOW_STYLE, false, 0);
+        AdjustWindowRectEx(&mut desired_client_rect_size, window_style, false, WINDOW_EX_STYLE::default());
 
         // endregion
 
@@ -109,7 +107,7 @@ fn main() -> Result<()> {
                 Default::default(),
                 "3DEngine",
                 "3DEngine",
-                WINDOW_STYLE, // WS_OVERLAPPEDWINDOW | WS_VISIBLE
+                window_style, // WS_OVERLAPPEDWINDOW | WS_VISIBLE
                 CW_USEDEFAULT,
                 CW_USEDEFAULT,
                 desired_client_rect_size.right - desired_client_rect_size.left,

@@ -295,7 +295,7 @@ impl Mesh {
     pub fn update(&mut self, bitmap: &mut Bitmap) {
         let z_rot = na::Rotation3::new(V3::z() * std::f32::consts::FRAC_PI_6 * self.angle_acc);
         let x_rot = na::Rotation3::new(V3::x() * std::f32::consts::FRAC_PI_2 * self.angle_acc);
-        let y_rot = na::Rotation3::new(V3::y() * std::f32::consts::FRAC_PI_2 * self.angle_acc * 0.5);
+        let _y_rot = na::Rotation3::new(V3::y() * std::f32::consts::FRAC_PI_2 * self.angle_acc * 0.5);
         self.angle_acc += self.timer.elapsed().as_secs_f32();
         self.timer = std::time::Instant::now();
 
@@ -309,26 +309,11 @@ impl Mesh {
         let normalized_camera_direction = camera_direction.normalize();
 
         for triangle in &mut self.triangles {
-            // triangle.apply_rotation(&y_rot);
-            // triangle.apply_isometry(&self.translation);
-
-            // let normal = triangle.normal_vector();
-            // println!("{}", normal.dot(&normalized_camera_direction));
-            // if normal.dot(&normalized_camera_direction) > 0.0 {
-            //     triangle.apply_projection(&self.projection);
-            //     triangle.apply_translation(&self.screen_space_translation);
-            //     triangle.apply_scaling(&self.screen_space_scaling);
-            //     for vertex in triangle.vertices() {
-            //         println!("{}", &vertex);
-            //         self.model_processing_buffer.push((vertex.x as i32, vertex.y as i32));
-            //     }
-            // }
             let mut normals = Vec::<P3>::with_capacity(3);
             let mut points = Vec::<P3>::with_capacity(3);
             for vertex in triangle.vertices() {
                 let z_rotated = z_rot.transform_point(&vertex);
                 let xz_rotated = x_rot.transform_point(&z_rotated);
-                //let y_rotated = y_rot.transform_point(&vertex);
                 let moved = self.translation.transform_point(&xz_rotated);
                 normals.push(moved.clone());
 
@@ -443,69 +428,3 @@ pub fn draw_filled_triangle(bitmap: &mut Bitmap, x0: i32, y0: i32, x1: i32, y1: 
 
     fill_triangle(bitmap, &mut triangle, &color);
 }
-
-
-//region
-// pub fn projection(bitmap: &mut Bitmap) {
-//     let unit_cube_model: Vec<P3> = vec![
-//         // SOUTH
-//         P3::new(0.0, 0.0, 0.0), P3::new(0.0, 1.0, 0.0), P3::new(1.0, 1.0, 0.0),
-//         P3::new( 0.0, 0.0, 0.0), P3::new(1.0, 1.0, 0.0), P3::new(1.0, 0.0, 0.0) ,
-//
-//         // EAST
-//         P3::new( 1.0, 0.0, 0.0), P3::new(1.0, 1.0, 0.0), P3::new(1.0, 1.0, 1.0 ),
-//         P3::new( 1.0, 0.0, 0.0), P3::new(1.0, 1.0, 1.0), P3::new(1.0, 0.0, 1.0 ),
-//
-//         // NORTH
-//         P3::new( 1.0, 0.0, 1.0), P3::new(1.0, 1.0, 1.0), P3::new(0.0, 1.0, 1.0 ),
-//         P3::new( 1.0, 0.0, 1.0), P3::new(0.0, 1.0, 1.0), P3::new(0.0, 0.0, 1.0 ),
-//
-//         // WEST
-//         P3::new( 0.0, 0.0, 1.0), P3::new(0.0, 1.0, 1.0), P3::new(0.0, 1.0, 0.0 ),
-//         P3::new( 0.0, 0.0, 1.0), P3::new(0.0, 1.0, 0.0), P3::new(0.0, 0.0, 0.0 ),
-//
-//         // TOP
-//         P3::new( 0.0, 1.0, 0.0), P3::new(0.0, 1.0, 1.0), P3::new(1.0, 1.0, 1.0 ),
-//         P3::new( 0.0, 1.0, 0.0), P3::new(1.0, 1.0, 1.0), P3::new(1.0, 1.0, 0.0 ),
-//
-//         // BOTTOM
-//         P3::new( 1.0, 0.0, 1.0), P3::new(0.0, 0.0, 1.0), P3::new(0.0, 0.0, 0.0 ),
-//         P3::new( 1.0, 0.0, 1.0), P3::new(0.0, 0.0, 0.0), P3::new(1.0, 0.0, 0.0)
-//     ];
-//
-//     let eye = P3::new(0.0, 0.0, - 5.0);
-//     let target = P3::new(0.0, 0.0, 4.0);
-//     let up = V3::y();
-//
-//     let translation = na::Isometry3::face_towards( & eye, & target, & up);
-//
-//     let fov = std::f32::consts::FRAC_PI_6;
-//     let aspect_ratio = ASPECT_RATIO;
-//     let znear = 0.1;
-//     let zfar = 100.0;
-//
-//     let projection = na::Perspective3::new(aspect_ratio, fov, znear, zfar);
-//
-//     let screen_translation = na::Translation3::new(1.0, 1.0, 0.0);
-//     let screen_scaling = na::Scale3::new(WIDTH as f32 / 2.0, HEIGHT as f32 / 2.0, 1.0);
-//     let z_rot = na::Rotation3::new(V3::z() * std::f32::consts::FRAC_PI_6);
-//     let x_rot = na::Rotation3::new(V3::z() * std::f32::consts::FRAC_PI_3);
-//
-//     let color= (100, 100, 100);
-//     let mut processed_model: Vec<(i32, i32) > = Vec::with_capacity(36);
-//     for point in unit_cube_model {
-//         let z_rotated = z_rot.transform_point( & point);
-//         let xz_rotated = x_rot.transform_point( & z_rotated);
-//         let moved = translation.transform_point( &xz_rotated);
-//         let projected = projection.project_point(& moved);
-//         let screen_trans = screen_translation.transform_point( & projected);
-//         let screen_scaled = screen_scaling.transform_point( & screen_trans);
-//         processed_model.push((screen_scaled.x as i32, screen_scaled.y as i32));
-//     }
-//     for chunk in processed_model.chunks(3) {
-//         if let & [(x0, y0), (x1, y1), (x2, y2)] = chunk {
-//             draw_triangle_outline(bitmap, x0, y0, x1, y1, x2, y2, & color);
-//         }
-//     }
-// }
-//endregion
