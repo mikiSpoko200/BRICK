@@ -3,6 +3,7 @@ use std::cmp::Ordering::Equal;
 use crate::{Bitmap, Pixel};
 
 use nalgebra as na;
+use windows::Win32::UI::WindowsAndMessaging::POINTER_DEVICE_PRODUCT_STRING_MAX;
 
 pub const WIDTH: i32 = 960;
 pub const HEIGHT: i32 = 540;
@@ -64,6 +65,45 @@ fn draw_high(bitmap: &mut Bitmap, x0: i32, y0: i32, x1: i32, y1: i32, color: &Rg
             diff += 2 * dx;
         }
     }
+}
+
+pub fn draw_elipsis(bitmap: &mut Bitmap, a: i32, b: i32, offset_x: i32, offset_y: i32) {
+    let (mut x, mut y) = (0, b);
+    let mut f = b * b - a * a * b + (a * a) / 4;
+
+    // Region 1
+    while 2 * b * b * x < 2 * a * a * y {
+        for point in symmetry_points(x, y, offset_x, offset_y) {
+            bitmap.set_pixel(point.0 as _, point.1 as _, Pixel::from_rgb_tuple(((point.0 / a) as _, (point.1 / b) as _, 255)));
+        }
+        if f >= 0 {
+            y -= 1;
+            f -= 2 * a * a * y;
+        }
+        x += 1;
+        f += 2 * b * b * x + b * b;
+    }
+
+    // Region 2
+    f = (b * b) * (x + 1) * (x + 1) + (a * a) * (y - 1) * (y - 1) - (a * a) * b * b;
+    while y >= 0 {
+        for point in symmetry_points(x, y, offset_x, offset_y) {
+            bitmap.set_pixel(point.0 as _, point.1 as _, Pixel::from_rgb_tuple(((point.0 / a) as _, (point.1 / b) as _, 255)));
+        }
+        if f <= 0 {
+            x += 1;
+            f += 2 * b * b * x + b * b;
+        }
+        y -= 1;
+        f -= 2 * a * a * y - a * a;
+    }
+}
+
+fn symmetry_points(x: i32, y: i32, offset_x: i32, offset_y: i32) -> Vec<(i32, i32)> {
+    vec![(x, y), (-x, y), (x, -y), (-x, -y)]
+        .into_iter()
+        .map(|(x, y)| (x + offset_x, y + offset_y)) // Apply offset
+        .collect()
 }
 
 

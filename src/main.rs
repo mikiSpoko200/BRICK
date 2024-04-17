@@ -133,14 +133,15 @@ fn main() -> Result<()> {
                 TranslateMessage(&message);
                 DispatchMessageA(&message);
             }
+
             // render_wierd_gradient(ITER_COUNT, ITER_COUNT.overflowing_mul(2).0);
             let device_context = Gdi::GetDC(handle);
             let mut rect = RECT::default();
             GetClientRect(handle, &mut rect);
 
             GLOBAL_BITMAP.as_mut().unwrap().clear_buffer();
-            mesh.update(GLOBAL_BITMAP.as_mut().unwrap());
-
+            // mesh.update(GLOBAL_BITMAP.as_mut().unwrap());
+            graphics::draw_elipsis(GLOBAL_BITMAP.as_mut().unwrap(), 100, 132, graphics::WIDTH / 2, graphics::HEIGHT / 2);
 
             GLOBAL_BITMAP.as_mut().unwrap().blit(&device_context, &rect);
             Gdi::ReleaseDC(handle, device_context);
